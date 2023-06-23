@@ -1,7 +1,7 @@
 import os
 import subprocess
+import time
 from tkinter import filedialog
-import sys
 
 NEFnames = []
 global irfanviewPath
@@ -14,9 +14,8 @@ def getNEFnames(folder_path):
 
 
 def convertNEFtoPNG(fileList, input_folder, output_folder):
-
     if isinstance(fileList, list):
-        possible_path = "C:\Program Files (x86)\IrfanView\i_view32.exe","C:\Program Files (x86)\IrfanView\i_view64.exe","C:\Program Files\IrfanView\i_view32.exe","C:\Program Files\IrfanView\i_view64.exe"
+        possible_path = "C:\Program Files (x86)\IrfanView\i_view32.exe", "C:\Program Files (x86)\IrfanView\i_view64.exe", "C:\Program Files\IrfanView\i_view32.exe", "C:\Program Files\IrfanView\i_view64.exe"
 
         for path in possible_path:
             if os.path.isfile(path) and os.path.exists(path):
@@ -27,34 +26,33 @@ def convertNEFtoPNG(fileList, input_folder, output_folder):
         except:
             irfanviewPath = select_irfan_folder()
 
-
         do_converting(fileList, input_folder, output_folder, irfanviewPath)
 
 
-
 def main():
-    """Main function"""
     input_folder = select_input_folder()
+
     if not input_folder:
         print("No input folder selected.")
-        return
+
+    print("Input folder selected: " + input_folder)
 
     output_folder = select_output_folder()
     if not output_folder:
         print("No output folder selected.")
-        return
 
-    print(input_folder)
-    print(output_folder)
+    print("Output folder selected: " + output_folder)
 
     NEFnames = getNEFnames(input_folder)
     if not NEFnames:
         print("Warning: No NEF files found in the selected input folder.")
-        return
 
-    print("Starting Conversion...\n")
+    print("Trying to convert " + str(len(NEFnames)) + " files")
+
     convertNEFtoPNG(NEFnames, input_folder, output_folder)
-    print("\nConversion completed!")
+
+    print("Successfully Finished Converting")
+    time.sleep(2)
 
 
 def select_input_folder():
@@ -82,11 +80,12 @@ def do_converting(fileList, input_folder, output_folder, irfanviewPath):
         input_path = os.path.join(input_folder, f)
         output_path = os.path.join(output_folder, os.path.splitext(f)[0] + " Converted.png")
         print("Converting:", input_path)
-        try:
-            subprocess.run([irfanviewPath, input_path, '/convert=',
-                            output_path])
-        except:
-            print("Issue Found")
+        for x in range(len(fileList)):
+            try:
+                subprocess.run([irfanviewPath, input_path, '/convert=',
+                                output_path])
+            except:
+                print("Issue found when attempting to convert " + input_path)
 
 
 if __name__ == '__main__':
